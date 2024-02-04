@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+option java_package = "org.example.grpc";
+option java_multiple_files = true;
+
+
+// Importing Timestamp for Date fields
+import "google/protobuf/timestamp.proto";
+
+service StocksService {
+  rpc getAllCompanies(Empty) returns (stream Company);
+  rpc Ask(StockRequest) returns (stream SellOrder);
+  rpc Bid(StockRequest) returns (stream BuyOrder);
+  rpc Order(OrderRequest) returns (OrderResponse);
+
+  rpc tradeHistory(TradeHistoryRequest) returns (stream TradeHistoryResponse);
+}
+
+
+
+message Empty{
+  string nesto = 1;
+}
+
+
+message Company {
+  string symbol = 1;
+  string companyName = 2;
+  double priceNow = 3;
+  double priceMorning = 4;
+
+  double change = 5;
+  google.protobuf.Timestamp date = 6;
+}
+
+// Message for representing a stock chosen for Ask and Bid operations
+message StockRequest {
+  string symbol = 1;
+  int32 quantity = 2;
+}
+
+// Message for representing a list of sell offers
+message SellOrder {
+  string symbol = 1;
+  double price = 2;
+  int32 quantity = 3;
+}
+
+// Message for representing a list of buy offers
+message BuyOrder {
+  string symbol = 1;
+  double price = 2;
+  int32 quantity = 3;
+}
+
+// Message for representing an order
+message OrderRequest {
+
+  string symbol = 1;
+  double price = 2;
+  int32 quantity = 3;
+  string idClient = 4;
+  bool ask = 5;
+}
+
+// Message for indicating a finished transaction
+message OrderResponse {
+  string response = 1;
+
+}
+
+// Message for representing a trade history request
+message TradeHistoryRequest {
+  string symbol = 1;
+  google.protobuf.Timestamp date = 2;
+
+}
+
+// Message for representing a trade history response
+message TradeHistoryResponse {
+  string symbol = 1;
+  double price = 2;
+  int32 quantity = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  bool buyOrSell = 5;
+}
+
+
