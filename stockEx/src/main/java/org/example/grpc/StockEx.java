@@ -73,27 +73,28 @@ public final class StockEx {
       "pany\022\016\n\006symbol\030\001 \001(\t\022\023\n\013companyName\030\002 \001(" +
       "\t\022\020\n\010priceNow\030\003 \001(\001\022\024\n\014priceMorning\030\004 \001(" +
       "\001\022\016\n\006change\030\005 \001(\001\022(\n\004date\030\006 \001(\0132\032.google" +
-      ".protobuf.Timestamp\"0\n\014StockRequest\022\016\n\006s" +
-      "ymbol\030\001 \001(\t\022\020\n\010quantity\030\002 \001(\005\"<\n\tSellOrd" +
-      "er\022\016\n\006symbol\030\001 \001(\t\022\r\n\005price\030\002 \001(\001\022\020\n\010qua" +
-      "ntity\030\003 \001(\005\";\n\010BuyOrder\022\016\n\006symbol\030\001 \001(\t\022" +
-      "\r\n\005price\030\002 \001(\001\022\020\n\010quantity\030\003 \001(\005\"^\n\014Orde" +
-      "rRequest\022\016\n\006symbol\030\001 \001(\t\022\r\n\005price\030\002 \001(\001\022" +
-      "\020\n\010quantity\030\003 \001(\005\022\020\n\010idClient\030\004 \001(\t\022\013\n\003a" +
-      "sk\030\005 \001(\010\"!\n\rOrderResponse\022\020\n\010response\030\001 " +
-      "\001(\t\"O\n\023TradeHistoryRequest\022\016\n\006symbol\030\001 \001" +
-      "(\t\022(\n\004date\030\002 \001(\0132\032.google.protobuf.Times" +
-      "tamp\"\211\001\n\024TradeHistoryResponse\022\016\n\006symbol\030" +
-      "\001 \001(\t\022\r\n\005price\030\002 \001(\001\022\020\n\010quantity\030\003 \001(\005\022-" +
-      "\n\ttimestamp\030\004 \001(\0132\032.google.protobuf.Time" +
-      "stamp\022\021\n\tbuyOrSell\030\005 \001(\0102\344\001\n\rStocksServi" +
-      "ce\022%\n\017getAllCompanies\022\006.Empty\032\010.Company0" +
-      "\001\022\"\n\003Ask\022\r.StockRequest\032\n.SellOrder0\001\022!\n" +
-      "\003Bid\022\r.StockRequest\032\t.BuyOrder0\001\022&\n\005Orde" +
-      "r\022\r.OrderRequest\032\016.OrderResponse\022=\n\014trad" +
-      "eHistory\022\024.TradeHistoryRequest\032\025.TradeHi" +
-      "storyResponse0\001B\024\n\020org.example.grpcP\001b\006p" +
-      "roto3"
+      ".protobuf.Timestamp\"B\n\014StockRequest\022\016\n\006s" +
+      "ymbol\030\001 \001(\t\022\020\n\010quantity\030\002 \001(\005\022\020\n\010clientI" +
+      "D\030\003 \001(\t\"N\n\tSellOrder\022\016\n\006symbol\030\001 \001(\t\022\r\n\005" +
+      "price\030\002 \001(\001\022\020\n\010quantity\030\003 \001(\005\022\020\n\010clientI" +
+      "D\030\004 \001(\t\"M\n\010BuyOrder\022\016\n\006symbol\030\001 \001(\t\022\r\n\005p" +
+      "rice\030\002 \001(\001\022\020\n\010quantity\030\003 \001(\005\022\020\n\010clientID" +
+      "\030\004 \001(\t\"^\n\014OrderRequest\022\016\n\006symbol\030\001 \001(\t\022\r" +
+      "\n\005price\030\002 \001(\001\022\020\n\010quantity\030\003 \001(\005\022\020\n\010idCli" +
+      "ent\030\004 \001(\t\022\013\n\003ask\030\005 \001(\010\"!\n\rOrderResponse\022" +
+      "\020\n\010response\030\001 \001(\t\"O\n\023TradeHistoryRequest" +
+      "\022\016\n\006symbol\030\001 \001(\t\022(\n\004date\030\002 \001(\0132\032.google." +
+      "protobuf.Timestamp\"\211\001\n\024TradeHistoryRespo" +
+      "nse\022\016\n\006symbol\030\001 \001(\t\022\r\n\005price\030\002 \001(\001\022\020\n\010qu" +
+      "antity\030\003 \001(\005\022-\n\ttimestamp\030\004 \001(\0132\032.google" +
+      ".protobuf.Timestamp\022\021\n\tbuyOrSell\030\005 \001(\0102\344" +
+      "\001\n\rStocksService\022%\n\017getAllCompanies\022\006.Em" +
+      "pty\032\010.Company0\001\022\"\n\003Ask\022\r.StockRequest\032\n." +
+      "SellOrder0\001\022!\n\003Bid\022\r.StockRequest\032\t.BuyO" +
+      "rder0\001\022&\n\005Order\022\r.OrderRequest\032\016.OrderRe" +
+      "sponse\022=\n\014tradeHistory\022\024.TradeHistoryReq" +
+      "uest\032\025.TradeHistoryResponse0\001B\024\n\020org.exa" +
+      "mple.grpcP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -125,19 +126,19 @@ public final class StockEx {
     internal_static_StockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_StockRequest_descriptor,
-        new java.lang.String[] { "Symbol", "Quantity", });
+        new java.lang.String[] { "Symbol", "Quantity", "ClientID", });
     internal_static_SellOrder_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_SellOrder_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_SellOrder_descriptor,
-        new java.lang.String[] { "Symbol", "Price", "Quantity", });
+        new java.lang.String[] { "Symbol", "Price", "Quantity", "ClientID", });
     internal_static_BuyOrder_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_BuyOrder_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_BuyOrder_descriptor,
-        new java.lang.String[] { "Symbol", "Price", "Quantity", });
+        new java.lang.String[] { "Symbol", "Price", "Quantity", "ClientID", });
     internal_static_OrderRequest_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_OrderRequest_fieldAccessorTable = new

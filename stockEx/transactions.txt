@@ -1,0 +1,5 @@
+Symbol: AAU, Price: 40.000000, Quantity: 100, Buyer: andjela, Seller: andjela
+Symbol: AAU, Price: 10.000000, Quantity: 10, Buyer: pera, Seller: andjela
+Symbol: AAU, Price: 10.000000, Quantity: 10, Buyer: darko, Seller: andjela
+Symbol: AAU, Price: 10.000000, Quantity: 10, Buyer: andjela, Seller: darko
+Symbol: AAU, Price: 10.000000, Quantity: 10, Buyer: darko, Seller: andjela

@@ -26,4 +26,14 @@ public interface SellOrderOrBuilder extends
    * <code>int32 quantity = 3;</code>
    */
   int getQuantity();
+
+  /**
+   * <code>string clientID = 4;</code>
+   */
+  java.lang.String getClientID();
+  /**
+   * <code>string clientID = 4;</code>
+   */
+  com.google.protobuf.ByteString
+      getClientIDBytes();
 }

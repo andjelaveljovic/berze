@@ -3,32 +3,42 @@ package org.example.z1;
 import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.example.grpc.Company;
-import org.example.grpc.Empty;
-import org.example.grpc.StocksServiceGrpc;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import org.example.grpc.*;
 
+import javax.ejb.SessionSynchronization;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Scanner;
 
-public class StockExClient {
+public class StockExClient extends StocksServiceGrpc.StocksServiceImplBase{
     private Socket tcpSocket;
     private String client= "";
-    private static int nextClientID = 1;
+    //private static int nextClientID = 1;
     StocksServiceGrpc.StocksServiceBlockingStub blockingStub;
     private ManagedChannel grpcChannel = null;
+
 
     public StockExClient(ManagedChannel channel) {
 
 
         blockingStub = StocksServiceGrpc.newBlockingStub(channel);
-        this.grpcChannel = grpcChannel;
+
+        this.grpcChannel = channel;
+        try {
+            tcpSocket = new Socket("localhost", 7998);
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating socket", e);
+        }
     }
 
     public static void main(String[] args) {
@@ -37,18 +47,20 @@ public class StockExClient {
                 .build();
 
         StockExClient client = new StockExClient(channel);
+        Scanner scanner = new Scanner(System.in);
 
-        StocksServiceGrpc.StocksServiceBlockingStub blockingStub = StocksServiceGrpc.newBlockingStub(channel);
-        StocksServiceGrpc.StocksServiceStub asyncStub = StocksServiceGrpc.newStub(channel);
 
-        try (Socket socket = new Socket("localhost", 7998)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+        //StocksServiceGrpc.StocksServiceBlockingStub blockingStub = StocksServiceGrpc.newBlockingStub(channel);
+        //StocksServiceGrpc.StocksServiceStub asyncStub = StocksServiceGrpc.newStub(channel);
+
+        try /*(Socket socket = new Socket("localhost", 7998))*/ {
+            BufferedReader reader1 = new BufferedReader(new InputStreamReader(client.tcpSocket.getInputStream()));
+            PrintWriter writer1 = new PrintWriter(client.tcpSocket.getOutputStream(), true);
 
             Thread serverListener = new Thread(() -> {
                 String serverMessage;
                 try {
-                    while ((serverMessage = reader.readLine()) != null) {
+                    while ((serverMessage = reader1.readLine()) != null) {
                         System.out.println(serverMessage);
                         if(serverMessage.startsWith("Registration successful.")){
 
@@ -58,7 +70,7 @@ public class StockExClient {
                             String lastWord = words[words.length - 1];
                             lastWord = lastWord.substring(0, lastWord.length() - 1);
                             client.client = lastWord;
-                            System.out.print(lastWord);
+                           // System.out.print(lastWord);
                         }
                     }
                 } catch (IOException e) {
@@ -68,7 +80,11 @@ public class StockExClient {
             serverListener.start();
 
             // Start a separate thread to listen for user input
-            Thread userInputThread = new Thread(() -> handleUserInput(writer));
+            Thread userInputThread = new Thread(() -> {
+                while(true) {
+                    handleUserInput(writer1, scanner, client, client.blockingStub);
+                }
+            });
             userInputThread.start();
 
             // Continue with other tasks if needed
@@ -82,36 +98,200 @@ public class StockExClient {
                 e.printStackTrace();
             }
             // Shutdown the channel when done
-            channel.shutdown();
+            client.grpcChannel.shutdown();
+            //client.tcpSocket.close();
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    private static void handleUserInput(PrintWriter writer) {
-        try (BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
-            String userInput;
-            boolean running = true;
+    private static void handleUserInput(PrintWriter writer, Scanner scanner,StockExClient client, StocksServiceGrpc.StocksServiceBlockingStub blockingStub ) {
 
-            while (running) {
+            
+            
                 //System.out.println("Enter a command:");
-                userInput = stdIn.readLine();
+            String userInput = scanner.nextLine();
+                String[] parts = userInput.split(" ");
 
-                if (userInput == null || "BYE".equalsIgnoreCase(userInput)) {
-                    running = false;
-                } else if(userInput.startsWith("track") || userInput.startsWith("register")){
+                 if(userInput.startsWith("track") || userInput.startsWith("register")){
                     writer.println(userInput);
+                    /*if(userInput.startsWith("track")){
+                        System.out.println("track order in");
+                    }*/
 
 
 
-                    Thread.sleep(100);
-                }
+
+                }else if(userInput.startsWith("bid")){
+                    if(parts.length == 3){
+                        String symbol = parts[1];
+                        int quantity = Integer.parseInt(parts[2]);
+                        client.seeBid(symbol, quantity, client);
+
+
+
+                    }else{
+                        System.out.print("bid has 3 parameters");
+                    }
+
+
+
+
+                }else if(userInput.startsWith("ask")){
+                    if(parts.length == 3){
+                        String symbol = parts[1];
+                        int quantity = Integer.parseInt(parts[2]);
+                        client.seeAsk(symbol, quantity, client);
+
+
+
+                    }else{
+                        System.out.print("ask has 3 parameters");
+                    }
+
+
+                }else if(userInput.startsWith("order")){
+                    if(parts.length == 6){
+                        String symbol = parts[1];
+                        double price = Double.parseDouble(parts[3]);
+                        int quantity = Integer.parseInt(parts[2]);
+                        String idClient = parts[4];
+                        boolean ask = Boolean.parseBoolean(parts[5]);//ako je false onda je bid
+
+                        client.order(symbol,quantity,price,  idClient, ask,  client);
+
+
+
+                    }else{
+                        System.out.print("order has 6 parameters");
+                    }
+
+
+
+
+                }else if(userInput.equals("getAllCompanies")){
+
+                     client.seeGetAllCompanies(client);
+
+                 }
+
             }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+
+    private void seeGetAllCompanies(StockExClient client) {
+        try{
+            Empty empty = Empty.newBuilder().build();
+
+            Iterator<Company> companyStream = client.blockingStub.getAllCompanies(empty);
+            while (companyStream.hasNext()) {
+                Company company = companyStream.next();
+                String dateFormat = "yyyy-MM-dd";
+                SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+                System.out.println("Simbol: " + company.getSymbol() + ", ime kompanije: " + company.getCompanyName() + "cena: "
+                        + company.getPriceNow() + ", promena: " + company.getChange() + ", datum: " + formatDate(company.getDate(), sdf));
+
+
+            }}catch(StatusRuntimeException e){
+            System.out.println("Error during getAllCompanies: " + e.getStatus());
+
+
         }
     }
+    private void seeAsk(String symbol, int quantity, StockExClient client) {
+		// TODO Auto-generated method stub
+             try{
+                 StockRequest stockRequest = StockRequest.newBuilder()
+                         .setSymbol(symbol)
+
+                         .setQuantity(quantity)
+                         .build();
+                 Iterator<SellOrder> sellResponse = client.blockingStub.ask(stockRequest);
+                 /*for (Iterator<SellOrder> it = sellResponse; it.hasNext(); ) {
+                     SellOrder sellO = it.next();
+                     System.out.println(sellO.getSymbol() + " " + sellO.getQuantity() + " " + sellO.getPrice());
+
+
+                 }*/
+                 while (sellResponse.hasNext()) {
+                     SellOrder sellO = sellResponse.next();
+                     // Print each SellOrder response
+                     System.out.println(sellO.getSymbol() + " " + sellO.getQuantity() + " " + sellO.getPrice());
+                 }
+             }catch(StatusRuntimeException e){
+                 System.out.println("Error during ask: " + e.getStatus());
+
+
+             }
+		
+	}
+
+		private void seeBid(String symbol, int quantity, StockExClient client) {
+		// TODO Auto-generated method stub
+            try{
+                StockRequest stockRequest = StockRequest.newBuilder()
+                        .setSymbol(symbol)
+
+                        .setQuantity(quantity)
+                        .build();
+                Iterator<BuyOrder> buyResponse = client.blockingStub.bid(stockRequest);
+                for (Iterator<BuyOrder> it = buyResponse; it.hasNext(); ) {
+                    BuyOrder buyO = it.next();
+                    System.out.println(buyO.getSymbol() + " " + buyO.getQuantity() + " " + buyO.getPrice());
+
+
+                }
+            }catch(StatusRuntimeException e){
+                System.out.println("Error during ask: " + e.getStatus());
+
+
+            }
+
+		
+	}
+
+		/*catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }*/
+        
+    
+
+    private void order(String symbol,  int quantity,double price, String idClient, boolean ask, StockExClient client) {
+        try{
+            OrderRequest orderRequest = OrderRequest.newBuilder()
+                    .setSymbol(symbol)
+                    .setPrice(price)
+                    .setQuantity(quantity)
+                    .setIdClient(idClient)
+                    .setAsk(ask)
+                    .build();
+            OrderResponse orderResponse = client.blockingStub.order(orderRequest);
+            System.out.print(orderResponse.getResponse());
+        }catch(StatusRuntimeException e){
+            System.out.println("Error during order: " + e.getStatus());
+
+
+        }
+    }
+
+/*
+    private void seeAsk(String symbol, int quantity, StockExClient client) {
+        try{
+
+        }catch(StatusRuntimeException e){
+
+
+        }
+    }
+
+    private void seeBid(String symbol, int quantity, StockExClient client) {
+        try{
+
+        }catch(StatusRuntimeException e){
+
+
+        }
+    }
+*/
     public static void ispisKopmanije(Company cs) {
         String dateFormat = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);

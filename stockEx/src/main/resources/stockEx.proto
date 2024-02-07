@@ -13,6 +13,7 @@ service StocksService {
   rpc Bid(StockRequest) returns (stream BuyOrder);
   rpc Order(OrderRequest) returns (OrderResponse);
 
+
   rpc tradeHistory(TradeHistoryRequest) returns (stream TradeHistoryResponse);
 }
 
@@ -37,6 +38,7 @@ message Company {
 message StockRequest {
   string symbol = 1;
   int32 quantity = 2;
+  string clientID = 3;
 }
 
 // Message for representing a list of sell offers
@@ -44,6 +46,8 @@ message SellOrder {
   string symbol = 1;
   double price = 2;
   int32 quantity = 3;
+  string clientID =4;
+
 }
 
 // Message for representing a list of buy offers
@@ -51,6 +55,7 @@ message BuyOrder {
   string symbol = 1;
   double price = 2;
   int32 quantity = 3;
+  string clientID =4;
 }
 
 // Message for representing an order
@@ -62,6 +67,7 @@ message OrderRequest {
   string idClient = 4;
   bool ask = 5;
 }
+
 
 // Message for indicating a finished transaction
 message OrderResponse {

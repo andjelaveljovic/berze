@@ -21,4 +21,14 @@ public interface StockRequestOrBuilder extends
    * <code>int32 quantity = 2;</code>
    */
   int getQuantity();
+
+  /**
+   * <code>string clientID = 3;</code>
+   */
+  java.lang.String getClientID();
+  /**
+   * <code>string clientID = 3;</code>
+   */
+  com.google.protobuf.ByteString
+      getClientIDBytes();
 }
